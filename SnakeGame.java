@@ -110,7 +110,6 @@ public class SnakeGame extends JPanel implements Runnable, KeyListener {
         }
         return false;
     }
-
     private boolean checkFood() {
         // Check if the head of the snake has collided with the food
         Point head = snake.get(0);
