@@ -108,10 +108,11 @@ public class SnakeGame extends JPanel implements Runnable, KeyListener {
     private boolean checkFood() {
         // Check if the head of the snake has collided with the food
         Point head = snake.get(0);
-        if (head.equals(food)) {
+        if (head.x >= food.x && head.x < food.x + SCALE && head.y >= food.y && head.y < food.y + SCALE) {
             // Add a new segment to the snake
             Point tail = snake.get(snake.size() - 1);
             snake.add(tail);
+
             // Place a new food
             placeFood();
 
