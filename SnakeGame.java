@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -7,9 +8,7 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Random;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 public class SnakeGame extends JPanel implements Runnable, KeyListener {
 
@@ -18,7 +17,7 @@ public class SnakeGame extends JPanel implements Runnable, KeyListener {
     // Game parameters
     public static final int WIDTH = 500;
     public static final int HEIGHT = 500;
-    public static final int SCALE = 10;
+    public static int SCALE = 10;
     public static final int DELAY = 75; // milliseconds
 
     // Snake parameters
@@ -31,6 +30,7 @@ public class SnakeGame extends JPanel implements Runnable, KeyListener {
 
     // Game state variables
     private boolean running = false;
+    private boolean paused = false;
     private Thread thread;
 
     public SnakeGame() {
@@ -108,23 +108,18 @@ public class SnakeGame extends JPanel implements Runnable, KeyListener {
     private boolean checkFood() {
         // Check if the head of the snake has collided with the food
         Point head = snake.get(0);
-        if (head.x >= food.x && head.x < food.x + SCALE && head.y >= food.y && head.y < food.y + SCALE) {
+        if (head.equals(food)) {
             // Add a new segment to the snake
             Point tail = snake.get(snake.size() - 1);
-            snake.add(tail);
-
             // Place a new food
             placeFood();
-
             // Increase the score
             score += 10;
-
             return true;
         }
 
         return false;
     }
-
     private void gameOver() {
         running = false;
 
@@ -158,18 +153,21 @@ public class SnakeGame extends JPanel implements Runnable, KeyListener {
     public void run() {
         while (running) {
             try {
-                // Move the snake
-                moveSnake();
+                // Check if the game is paused
+                if (!paused) {
+                    // Move the snake
+                    moveSnake();
 
-                // Check for collisions
-                if (checkCollision()) {
-                    gameOver();
-                }
+                    // Check for collisions
+                    if (checkCollision()) {
+                        gameOver();
+                    }
 
-                // Check for food
-                if (checkFood()) {
-                    // Pause the game briefly to allow the player to see the new food
-                    Thread.sleep(250);
+                    // Check for food
+                    if (checkFood()) {
+                        // Pause the game briefly to allow the player to see the new food
+                        Thread.sleep(250);
+                    }
                 }
 
                 // Repaint the screen
@@ -199,8 +197,15 @@ public class SnakeGame extends JPanel implements Runnable, KeyListener {
 
         // Draw the score
         g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 16));
         g.drawString("Score: " + score, 10, 20);
+
+        // Draw the pause button
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 16));
+        g.drawString("Press Esc or P to pause", WIDTH - 200, 20);
     }
+
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -216,18 +221,20 @@ public class SnakeGame extends JPanel implements Runnable, KeyListener {
         } else if (key == KeyEvent.VK_DOWN && direction != KeyEvent.VK_UP) {
             direction = key;
         }
-    }
 
-    @Override
-    public void keyReleased(KeyEvent e) {
-        // Do nothing
+        // Pause the game if the player presses Esc or P
+        if (key == KeyEvent.VK_ESCAPE || key == KeyEvent.VK_P) {
+            paused = !paused;
+        }
     }
-
     @Override
     public void keyTyped(KeyEvent e) {
-        // Do nothing
+    // Do nothing
     }
-
+    @Override
+    public void keyReleased(KeyEvent e) {
+    // Do nothing
+    }
     public static void main(String[] args) {
         JFrame frame = new JFrame("Snake Game");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -238,3 +245,4 @@ public class SnakeGame extends JPanel implements Runnable, KeyListener {
         frame.setVisible(true);
     }
 }
+
